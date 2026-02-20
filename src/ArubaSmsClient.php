@@ -238,6 +238,25 @@ class ArubaSmsClient
     }
 
     /**
+     * Determine if a failed request should be retried.
+     *
+     * Connection errors are always retried. Server errors (5xx) are retried.
+     * All other exceptions are not retried.
+     */
+    public function shouldRetry(\Throwable $exception): bool
+    {
+        if ($exception instanceof ConnectionException) {
+            return true;
+        }
+
+        if ($exception instanceof RequestException) {
+            return $exception->response->serverError();
+        }
+
+        return false;
+    }
+
+    /**
      * Build an HTTP client with retry for transient failures.
      */
     protected function httpClient(): PendingRequest
@@ -245,16 +264,6 @@ class ArubaSmsClient
         $times = (int) config('aruba-sms.retry.times', 3);
         $sleepMs = (int) config('aruba-sms.retry.sleep_ms', 100);
 
-        return Http::retry($times, $sleepMs, function (\Throwable $exception): bool {
-            if ($exception instanceof ConnectionException) {
-                return true;
-            }
-
-            if ($exception instanceof RequestException) {
-                return $exception->response->serverError();
-            }
-
-            return false;
-        }, throw: false);
+        return Http::retry($times, $sleepMs, fn (\Throwable $e) => $this->shouldRetry($e), throw: false);
     }
 }

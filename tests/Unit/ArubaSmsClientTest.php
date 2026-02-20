@@ -331,6 +331,40 @@ it('prepareData uses getRecipients for multiple recipients', function () {
     expect($data['recipient'])->toBe(['+393331111111', '+393332222222']);
 });
 
+it('retries on ConnectionException', function () {
+    $client = new ArubaSmsClient;
+    $exception = new \Illuminate\Http\Client\ConnectionException('Connection timed out');
+
+    expect($client->shouldRetry($exception))->toBeTrue();
+});
+
+it('retries on RequestException with server error', function () {
+    $psrResponse = new \GuzzleHttp\Psr7\Response(500, [], 'Internal Server Error');
+    $response = new \Illuminate\Http\Client\Response($psrResponse);
+    $exception = new \Illuminate\Http\Client\RequestException($response);
+
+    $client = new ArubaSmsClient;
+
+    expect($client->shouldRetry($exception))->toBeTrue();
+});
+
+it('does not retry on RequestException with client error', function () {
+    $psrResponse = new \GuzzleHttp\Psr7\Response(400, [], 'Bad Request');
+    $response = new \Illuminate\Http\Client\Response($psrResponse);
+    $exception = new \Illuminate\Http\Client\RequestException($response);
+
+    $client = new ArubaSmsClient;
+
+    expect($client->shouldRetry($exception))->toBeFalse();
+});
+
+it('does not retry on generic exceptions', function () {
+    $client = new ArubaSmsClient;
+    $exception = new \RuntimeException('Something went wrong');
+
+    expect($client->shouldRetry($exception))->toBeFalse();
+});
+
 it('logs multiple recipients in sandbox mode', function () {
     config()->set('aruba-sms.sandbox', true);
 
