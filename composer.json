@@ -1,57 +1,61 @@
 {
     "name": "offline-agency/laravel-aruba-sms",
-    "description": "Simple integration with aruba sms",
-    "keywords": [
-        "offline-agency",
-        "laravel-aruba-sms"
-    ],
-    "homepage": "https://github.com/offline-agency/laravel-aruba-sms",
-    "license": "MIT",
+    "description": "Laravel notification channel and API client for Aruba SMS Panel",
     "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "sms", "aruba", "notification-channel", "italy"],
     "authors": [
         {
             "name": "Offline Agency",
-            "email": "support@offlineagency.it",
-            "role": "Developer"
+            "email": "support@offlineagency.com"
         }
     ],
     "require": {
-        "php": "^7.3|^7.4|^8.0",
-        "illuminate/console": "^6.0|^7.0|^8.0",
-        "illuminate/http": "^6.0|^7.0|^8.0",
-        "illuminate/support": "^6.0|^7.0|^8.0",
-        "nesbot/carbon": "^2.54"
+        "php": "^8.4",
+        "illuminate/http": "^12.0",
+        "illuminate/notifications": "^12.0",
+        "illuminate/support": "^12.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^6.0",
-        "phpunit/phpunit": "^9.0"
+        "laravel/pint": "^1.18",
+        "larastan/larastan": "^3.0",
+        "mockery/mockery": "^1.6",
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0"
     },
     "autoload": {
         "psr-4": {
-            "OfflineAgency\\LaravelArubaSms\\": "src"
+            "OfflineAgency\\ArubaSms\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "OfflineAgency\\LaravelArubaSms\\Tests\\": "tests"
+            "OfflineAgency\\ArubaSms\\Tests\\": "tests/"
         }
-    },
-    "scripts": {
-        "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
-
-    },
-    "config": {
-        "sort-packages": true
     },
     "extra": {
         "laravel": {
             "providers": [
-                "OfflineAgency\\LaravelArubaSms\\LaravelArubaSmsServiceProvider"
+                "OfflineAgency\\ArubaSms\\ArubaSmsServiceProvider"
             ],
             "aliases": {
-                "LaravelArubaSms": "OfflineAgency\\LaravelArubaSms\\LaravelArubaSmsFacade"
+                "ArubaSms": "OfflineAgency\\ArubaSms\\Facades\\ArubaSms"
             }
         }
-    }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "test:coverage": "vendor/bin/pest --coverage --min=100",
+        "analyse": "vendor/bin/phpstan analyse",
+        "format": "vendor/bin/pint",
+        "format:check": "vendor/bin/pint --test"
+    },
+    "prefer-stable": true
 }

@@ -1,77 +1,72 @@
 <?php
 
-namespace OfflineAgency\LaravelArubaSms\Notifications;
+namespace OfflineAgency\ArubaSms\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Lang;
+use OfflineAgency\ArubaSms\ArubaSmsMessage;
 
 class SendSmsNotification extends Notification
 {
     use Queueable;
 
-    public $message;
-    public $recipient;
-    public $message_type;
+    public string $message;
+
+    public string $recipient;
+
+    public string $message_type;
 
     public function __construct(
-        $message,
-        $recipient
-    )
-    {
-        $this->setMessage(
-            $message
-        );
-
-        $this->setRecipient(
-            $recipient
-        );
-
-        $this->setMessageType();
+        string $message,
+        string $recipient
+    ) {
+        $this->message = $message;
+        $this->recipient = $recipient;
+        $this->message_type = config('aruba-sms.message_type', 'N');
     }
 
-    public function via(
-        $notifiable
-    ): array
+    /** @return array<int, string> */
+    public function via(mixed $notifiable): array
     {
-        return [
-            'aruba-sms'
-        ];
+        return ['aruba-sms'];
     }
 
-    public function getMessage()
+    public function toArubaSms(mixed $notifiable): ArubaSmsMessage
+    {
+        return new ArubaSmsMessage(
+            $this->message,
+            $this->recipient,
+            $this->message_type
+        );
+    }
+
+    public function getMessage(): string
     {
         return $this->message;
     }
 
-    public function setMessage(
-        $message
-    ): void
+    public function setMessage(string $message): void
     {
         $this->message = $message;
     }
 
-    public function getRecipient()
+    public function getRecipient(): string
     {
         return $this->recipient;
     }
 
-    public function setRecipient(
-        $recipient
-    ): void
+    public function setRecipient(string $recipient): void
     {
         $this->recipient = $recipient;
     }
 
-    public function getMessageType()
+    public function getMessageType(): string
     {
         return $this->message_type;
     }
 
-    public function setMessageType(): void
+    public function setMessageType(string $message_type): void
     {
-        $this->message_type = config('aruba.message_type');
+        $this->message_type = $message_type;
     }
 }
