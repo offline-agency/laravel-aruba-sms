@@ -3,10 +3,12 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/offline-agency/laravel-aruba-sms.svg?style=flat-square)](https://packagist.org/packages/offline-agency/laravel-aruba-sms)
 [![Tests](https://img.shields.io/github/actions/workflow/status/offline-agency/laravel-aruba-sms/ci.yml?branch=main&label=tests&style=flat-square)](https://github.com/offline-agency/laravel-aruba-sms/actions/workflows/ci.yml)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat-square)](https://phpstan.org/)
+[![codecov](https://codecov.io/gh/offline-agency/laravel-aruba-sms/branch/main/graph/badge.svg)](https://codecov.io/gh/offline-agency/laravel-aruba-sms)
 [![Total Downloads](https://img.shields.io/packagist/dt/offline-agency/laravel-aruba-sms.svg?style=flat-square)](https://packagist.org/packages/offline-agency/laravel-aruba-sms)
 [![License](https://img.shields.io/packagist/l/offline-agency/laravel-aruba-sms.svg?style=flat-square)](LICENSE)
 
-Laravel notification channel and API client for the [Aruba SMS Panel](https://smspanel.aruba.it).
+
+Laravel notification channel and API client for the [Aruba SMS API Service](https://www.aruba.it/listino-sms.aspx). See the [official API documentation](https://smspanel.aruba.it/API/v1.0/REST/doc/index.html).
 
 ## Requirements
 
