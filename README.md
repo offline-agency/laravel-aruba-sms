@@ -10,6 +10,8 @@
 
 Laravel notification channel and API client for the [Aruba SMS API Service](https://www.aruba.it/listino-sms.aspx). See the [official API documentation](https://smspanel.aruba.it/API/v1.0/REST/doc/index.html).
 
+![Laravel Aruba SMS](https://banners.beyondco.de/Laravel%20Aruba%20SMS.png?theme=dark&packageManager=composer+require&packageName=offline-agency%2Flaravel-aruba-sms&pattern=aztec&style=style_2&description=Laravel+notification+channel+and+API+client+for+the+Aruba+SMS+API+Service&md=1&showWatermark=0&fontSize=100px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg)
+
 ## Requirements
 
 - PHP ^8.4
