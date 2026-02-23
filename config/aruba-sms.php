@@ -36,7 +36,7 @@ return [
     | The sender name that appears on the recipient's device.
     |
     */
-    'sender' => env('ARUBA_SMS_SENDER', 'Takeathome'),
+    'sender' => env('ARUBA_SMS_SENDER', 'YourBrand'),
 
     /*
     |--------------------------------------------------------------------------

@@ -65,7 +65,7 @@ ARUBA_SMS_ID=your_username
 ARUBA_SMS_PASSWORD=your_password
 
 # Optional
-ARUBA_SMS_SENDER=YourBrand              # Default: Takeathome
+ARUBA_SMS_SENDER=YourBrand              # Default: YourBrand
 ARUBA_SMS_SANDBOX=true                  # Default: false (set true for dev/test)
 ARUBA_SMS_MINIMUM_SMS=50                # Low credit threshold
 ARUBA_SMS_LOW_CREDIT_RECIPIENTS=admin@example.com,dev@example.com
@@ -76,7 +76,7 @@ ARUBA_SMS_LOW_CREDIT_RECIPIENTS=admin@example.com,dev@example.com
 | `ARUBA_SMS_ID` | Aruba SMS Panel username | (required) |
 | `ARUBA_SMS_PASSWORD` | Aruba SMS Panel password | (required) |
 | `ARUBA_SMS_BASE_URL` | API base URL | `https://smspanel.aruba.it/API/v1.0/REST/` |
-| `ARUBA_SMS_SENDER` | Sender name on recipient's device | `Takeathome` |
+| `ARUBA_SMS_SENDER` | Sender name on recipient's device | `YourBrand` |
 | `ARUBA_SMS_MESSAGE_TYPE` | SMS type | `N` (Normal) |
 | `ARUBA_SMS_SANDBOX` | Log instead of sending | `false` |
 | `ARUBA_SMS_MINIMUM_SMS` | Low credit alert threshold | `50` |

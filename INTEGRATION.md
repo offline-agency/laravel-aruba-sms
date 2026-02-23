@@ -1,6 +1,6 @@
 # Integration Guide
 
-Step-by-step instructions for migrating the TakeAtHome main app to use this package instead of the inline Aruba SMS code. **Do NOT apply these changes automatically** — this is a reference for manual integration.
+Step-by-step instructions for migrating the main app to use this package instead of the inline Aruba SMS code. **Do NOT apply these changes automatically** — this is a reference for manual integration.
 
 ## Step 1: Install the Package
 
@@ -38,8 +38,8 @@ Add these new variables:
 
 ```env
 ARUBA_SMS_SANDBOX=true          # Set to false in production
-ARUBA_SMS_SENDER=Takeathome
-ARUBA_SMS_LOW_CREDIT_RECIPIENTS=dev@takeathome.it,info@gianduja.agency
+ARUBA_SMS_SENDER=YoruBrand
+ARUBA_SMS_LOW_CREDIT_RECIPIENTS=dev@domain.it,info@domain.it
 ```
 
 Existing variables (`ARUBA_SMS_ID`, `ARUBA_SMS_PASSWORD`, `MINIMUM_SMS`) continue to work unchanged.
@@ -132,7 +132,7 @@ Replace the Aruba SMS section:
   ARUBA_SMS_PASSWORD=
 - MINIMUM_SMS=
 + ARUBA_SMS_MINIMUM_SMS=
-+ ARUBA_SMS_SENDER=Takeathome
++ ARUBA_SMS_SENDER=YourBrand
 + ARUBA_SMS_SANDBOX=true
 + ARUBA_SMS_LOW_CREDIT_RECIPIENTS=
 ```
