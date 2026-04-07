@@ -1,6 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Notification;
 use OfflineAgency\ArubaSms\ArubaSmsClient;
+use OfflineAgency\ArubaSms\Notifications\SendSmsNotification;
 
 it('merges config with default values', function () {
     expect(config('aruba-sms.base_url'))->not->toBeNull()
@@ -23,7 +26,7 @@ it('resolves facade accessor', function () {
 });
 
 it('registers artisan commands', function () {
-    $commands = Illuminate\Support\Facades\Artisan::all();
+    $commands = Artisan::all();
 
     expect($commands)->toHaveKey('aruba:sms')
         ->and($commands)->toHaveKey('aruba:check-remaining-sms');
@@ -34,10 +37,10 @@ it('registers aruba-sms notification channel', function () {
     // We verify by sending a notification through the channel in sandbox mode.
     config()->set('aruba-sms.sandbox', true);
 
-    $notification = new OfflineAgency\ArubaSms\Notifications\SendSmsNotification('Test', '+393331234567');
+    $notification = new SendSmsNotification('Test', '+393331234567');
 
     // If the channel wasn't registered, this would throw
-    Illuminate\Support\Facades\Notification::route('aruba-sms', null)
+    Notification::route('aruba-sms', null)
         ->notify($notification);
 
     expect(true)->toBeTrue();

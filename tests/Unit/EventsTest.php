@@ -6,6 +6,7 @@ use OfflineAgency\ArubaSms\ArubaSmsClient;
 use OfflineAgency\ArubaSms\ArubaSmsMessage;
 use OfflineAgency\ArubaSms\Events\SmsFailed;
 use OfflineAgency\ArubaSms\Events\SmsSent;
+use OfflineAgency\ArubaSms\Exceptions\ArubaSmsDeliveryException;
 
 it('dispatches SmsSent event on successful send', function () {
     Event::fake([SmsSent::class]);
@@ -41,13 +42,13 @@ it('dispatches SmsFailed event on delivery failure', function () {
 
     try {
         $client->sendMessage($message);
-    } catch (\Throwable) {
+    } catch (Throwable) {
         // expected
     }
 
     Event::assertDispatched(SmsFailed::class, function (SmsFailed $event) {
         return $event->message->getContent() === 'Hello'
-            && $event->exception instanceof \OfflineAgency\ArubaSms\Exceptions\ArubaSmsDeliveryException;
+            && $event->exception instanceof ArubaSmsDeliveryException;
     });
 });
 
@@ -77,7 +78,7 @@ it('SmsSent event contains message and response', function () {
 
 it('SmsFailed event contains message and exception', function () {
     $message = new ArubaSmsMessage('Test', '+393331234567', 'N');
-    $exception = new \RuntimeException('test error');
+    $exception = new RuntimeException('test error');
 
     $event = new SmsFailed($message, $exception);
 

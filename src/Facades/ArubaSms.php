@@ -3,6 +3,7 @@
 namespace OfflineAgency\ArubaSms\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use OfflineAgency\ArubaSms\ArubaSmsClient;
 
 /**
  * @method static object auth()
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array<string, mixed> prepareData(\OfflineAgency\ArubaSms\ArubaSmsMessage $message)
  * @method static string getBaseUrl()
  *
- * @see \OfflineAgency\ArubaSms\ArubaSmsClient
+ * @see ArubaSmsClient
  */
 class ArubaSms extends Facade
 {

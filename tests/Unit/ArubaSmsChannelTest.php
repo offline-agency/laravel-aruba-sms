@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Http;
 use OfflineAgency\ArubaSms\ArubaSmsChannel;
 use OfflineAgency\ArubaSms\ArubaSmsClient;
 use OfflineAgency\ArubaSms\ArubaSmsMessage;
+use OfflineAgency\ArubaSms\Exceptions\ArubaSmsDeliveryException;
 
 it('calls toArubaSms when method exists', function () {
     config()->set('aruba-sms.sandbox', true);
@@ -169,7 +170,7 @@ it('propagates delivery exception through channel', function () {
     $client = app(ArubaSmsClient::class);
     $channel = new ArubaSmsChannel($client);
     $channel->send(null, $notification);
-})->throws(\OfflineAgency\ArubaSms\Exceptions\ArubaSmsDeliveryException::class);
+})->throws(ArubaSmsDeliveryException::class);
 
 it('passes notifiable to toArubaSms method', function () {
     config()->set('aruba-sms.sandbox', true);
