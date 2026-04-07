@@ -15,7 +15,7 @@ Laravel notification channel and API client for the [Aruba SMS API Service](http
 ## Requirements
 
 - PHP ^8.4
-- Laravel ^12.0
+- Laravel ^12.0 or ^13.0
 
 ## Installation
 
