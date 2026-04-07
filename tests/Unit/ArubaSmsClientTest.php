@@ -1,5 +1,8 @@
 <?php
 
+use GuzzleHttp\Psr7\Response;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use OfflineAgency\ArubaSms\ArubaSmsClient;
@@ -333,15 +336,15 @@ it('prepareData uses getRecipients for multiple recipients', function () {
 
 it('retries on ConnectionException', function () {
     $client = new ArubaSmsClient;
-    $exception = new \Illuminate\Http\Client\ConnectionException('Connection timed out');
+    $exception = new ConnectionException('Connection timed out');
 
     expect($client->shouldRetry($exception))->toBeTrue();
 });
 
 it('retries on RequestException with server error', function () {
-    $psrResponse = new \GuzzleHttp\Psr7\Response(500, [], 'Internal Server Error');
-    $response = new \Illuminate\Http\Client\Response($psrResponse);
-    $exception = new \Illuminate\Http\Client\RequestException($response);
+    $psrResponse = new Response(500, [], 'Internal Server Error');
+    $response = new Illuminate\Http\Client\Response($psrResponse);
+    $exception = new RequestException($response);
 
     $client = new ArubaSmsClient;
 
@@ -349,9 +352,9 @@ it('retries on RequestException with server error', function () {
 });
 
 it('does not retry on RequestException with client error', function () {
-    $psrResponse = new \GuzzleHttp\Psr7\Response(400, [], 'Bad Request');
-    $response = new \Illuminate\Http\Client\Response($psrResponse);
-    $exception = new \Illuminate\Http\Client\RequestException($response);
+    $psrResponse = new Response(400, [], 'Bad Request');
+    $response = new Illuminate\Http\Client\Response($psrResponse);
+    $exception = new RequestException($response);
 
     $client = new ArubaSmsClient;
 
@@ -360,20 +363,89 @@ it('does not retry on RequestException with client error', function () {
 
 it('does not retry on generic exceptions', function () {
     $client = new ArubaSmsClient;
-    $exception = new \RuntimeException('Something went wrong');
+    $exception = new RuntimeException('Something went wrong');
 
     expect($client->shouldRetry($exception))->toBeFalse();
+});
+
+it('re-authenticates and retries sendMessage on 401', function () {
+    Http::fake([
+        '*/login' => Http::sequence()
+            ->push('uk1;sk1', 200)
+            ->push('uk2;sk2', 200),
+        '*/sms' => Http::sequence()
+            ->push('Unauthorized', 401)
+            ->push('OK', 201),
+    ]);
+
+    $client = new ArubaSmsClient;
+    $message = new ArubaSmsMessage('Hello', '+393331234567', 'N');
+    $response = $client->sendMessage($message);
+
+    expect($response->status())->toBe(201);
+    Http::assertSentCount(4); // login + sms(401) + re-login + sms(201)
+});
+
+it('re-authenticates and retries checkSmsStatus on 401', function () {
+    Http::fake([
+        '*/login' => Http::sequence()
+            ->push('uk1;sk1', 200)
+            ->push('uk2;sk2', 200),
+        '*/status' => Http::sequence()
+            ->push('Unauthorized', 401)
+            ->push(json_encode(['sms' => [['type' => 'GP', 'quantity' => 100]]]), 200),
+    ]);
+
+    $client = new ArubaSmsClient;
+    $response = $client->checkSmsStatus();
+
+    expect($response->status())->toBe(200);
+    Http::assertSentCount(4); // login + status(401) + re-login + status(200)
+});
+
+it('re-authenticates and retries getSmsHistory on 401', function () {
+    Http::fake([
+        '*/login' => Http::sequence()
+            ->push('uk1;sk1', 200)
+            ->push('uk2;sk2', 200),
+        '*smshistory*' => Http::sequence()
+            ->push('Unauthorized', 401)
+            ->push('[]', 200),
+    ]);
+
+    $client = new ArubaSmsClient;
+    $response = $client->getSmsHistory('20260101000001');
+
+    expect($response->status())->toBe(200);
+    Http::assertSentCount(4); // login + history(401) + re-login + history(200)
+});
+
+it('re-authenticates and retries getSmsRecipientHistory on 401', function () {
+    Http::fake([
+        '*/login' => Http::sequence()
+            ->push('uk1;sk1', 200)
+            ->push('uk2;sk2', 200),
+        '*rcptHistory*' => Http::sequence()
+            ->push('Unauthorized', 401)
+            ->push('[]', 200),
+    ]);
+
+    $client = new ArubaSmsClient;
+    $response = $client->getSmsRecipientHistory('+393331234567', '20260101000001');
+
+    expect($response->status())->toBe(200);
+    Http::assertSentCount(4); // login + history(401) + re-login + history(200)
 });
 
 it('logs multiple recipients in sandbox mode', function () {
     config()->set('aruba-sms.sandbox', true);
 
-    \Illuminate\Support\Facades\Log::shouldReceive('info')->with('*** Aruba SMS DEBUG ***')->once();
-    \Illuminate\Support\Facades\Log::shouldReceive('info')->with('Notification sent successfully!')->once();
-    \Illuminate\Support\Facades\Log::shouldReceive('info')->with('Recipient: +393331111111, +393332222222')->once();
-    \Illuminate\Support\Facades\Log::shouldReceive('info')->with('Message: Hello')->once();
-    \Illuminate\Support\Facades\Log::shouldReceive('info')->with('Message Type: N')->once();
-    \Illuminate\Support\Facades\Log::shouldReceive('info')->with('*** *** ***')->once();
+    Log::shouldReceive('info')->with('*** Aruba SMS DEBUG ***')->once();
+    Log::shouldReceive('info')->with('Notification sent successfully!')->once();
+    Log::shouldReceive('info')->with('Recipient: +393331111111, +393332222222')->once();
+    Log::shouldReceive('info')->with('Message: Hello')->once();
+    Log::shouldReceive('info')->with('Message Type: N')->once();
+    Log::shouldReceive('info')->with('*** *** ***')->once();
 
     $client = new ArubaSmsClient;
     $message = new ArubaSmsMessage('Hello', ['+393331111111', '+393332222222'], 'N');

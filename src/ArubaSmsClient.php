@@ -99,9 +99,9 @@ class ArubaSmsClient
 
         $url = $this->base_url.'sms';
 
-        $response = $this->httpClient()
-            ->withHeaders($this->getHeader())
-            ->post($url, $data);
+        $response = $this->withSessionRetry(
+            fn () => $this->httpClient()->withHeaders($this->getHeader())->post($url, $data)
+        );
 
         $status = $response->status();
         if ($status === 200 || $status === 201) {
@@ -141,9 +141,9 @@ class ArubaSmsClient
 
         $url = $this->base_url.'status';
 
-        return $this->httpClient()
-            ->withHeaders($this->getHeader())
-            ->get($url);
+        return $this->withSessionRetry(
+            fn () => $this->httpClient()->withHeaders($this->getHeader())->get($url)
+        );
     }
 
     /**
@@ -168,9 +168,9 @@ class ArubaSmsClient
 
         $url = $this->base_url.'smshistory?'.http_build_query($params);
 
-        return $this->httpClient()
-            ->withHeaders($this->getHeader())
-            ->get($url);
+        return $this->withSessionRetry(
+            fn () => $this->httpClient()->withHeaders($this->getHeader())->get($url)
+        );
     }
 
     /**
@@ -197,9 +197,9 @@ class ArubaSmsClient
 
         $url = $this->base_url.'rcptHistory?'.http_build_query($params);
 
-        return $this->httpClient()
-            ->withHeaders($this->getHeader())
-            ->get($url);
+        return $this->withSessionRetry(
+            fn () => $this->httpClient()->withHeaders($this->getHeader())->get($url)
+        );
     }
 
     /**
@@ -254,6 +254,22 @@ class ArubaSmsClient
         }
 
         return false;
+    }
+
+    /**
+     * Execute a request, re-authenticating once if the session has expired (401).
+     */
+    private function withSessionRetry(callable $request): Response
+    {
+        $response = $request();
+
+        if ($response->status() === 401) {
+            $this->clearSession();
+            $this->auth();
+            $response = $request();
+        }
+
+        return $response;
     }
 
     /**

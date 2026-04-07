@@ -3,6 +3,7 @@
 namespace OfflineAgency\ArubaSms\Tests;
 
 use OfflineAgency\ArubaSms\ArubaSmsServiceProvider;
+use OfflineAgency\ArubaSms\Facades\ArubaSms;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 class TestCase extends OrchestraTestCase
@@ -17,7 +18,7 @@ class TestCase extends OrchestraTestCase
     protected function getPackageAliases($app): array
     {
         return [
-            'ArubaSms' => \OfflineAgency\ArubaSms\Facades\ArubaSms::class,
+            'ArubaSms' => ArubaSms::class,
         ];
     }
 
