@@ -365,6 +365,75 @@ it('does not retry on generic exceptions', function () {
     expect($client->shouldRetry($exception))->toBeFalse();
 });
 
+it('re-authenticates and retries sendMessage on 401', function () {
+    Http::fake([
+        '*/login' => Http::sequence()
+            ->push('uk1;sk1', 200)
+            ->push('uk2;sk2', 200),
+        '*/sms' => Http::sequence()
+            ->push('Unauthorized', 401)
+            ->push('OK', 201),
+    ]);
+
+    $client = new ArubaSmsClient;
+    $message = new ArubaSmsMessage('Hello', '+393331234567', 'N');
+    $response = $client->sendMessage($message);
+
+    expect($response->status())->toBe(201);
+    Http::assertSentCount(4); // login + sms(401) + re-login + sms(201)
+});
+
+it('re-authenticates and retries checkSmsStatus on 401', function () {
+    Http::fake([
+        '*/login' => Http::sequence()
+            ->push('uk1;sk1', 200)
+            ->push('uk2;sk2', 200),
+        '*/status' => Http::sequence()
+            ->push('Unauthorized', 401)
+            ->push(json_encode(['sms' => [['type' => 'GP', 'quantity' => 100]]]), 200),
+    ]);
+
+    $client = new ArubaSmsClient;
+    $response = $client->checkSmsStatus();
+
+    expect($response->status())->toBe(200);
+    Http::assertSentCount(4); // login + status(401) + re-login + status(200)
+});
+
+it('re-authenticates and retries getSmsHistory on 401', function () {
+    Http::fake([
+        '*/login' => Http::sequence()
+            ->push('uk1;sk1', 200)
+            ->push('uk2;sk2', 200),
+        '*smshistory*' => Http::sequence()
+            ->push('Unauthorized', 401)
+            ->push('[]', 200),
+    ]);
+
+    $client = new ArubaSmsClient;
+    $response = $client->getSmsHistory('20260101000001');
+
+    expect($response->status())->toBe(200);
+    Http::assertSentCount(4); // login + history(401) + re-login + history(200)
+});
+
+it('re-authenticates and retries getSmsRecipientHistory on 401', function () {
+    Http::fake([
+        '*/login' => Http::sequence()
+            ->push('uk1;sk1', 200)
+            ->push('uk2;sk2', 200),
+        '*rcptHistory*' => Http::sequence()
+            ->push('Unauthorized', 401)
+            ->push('[]', 200),
+    ]);
+
+    $client = new ArubaSmsClient;
+    $response = $client->getSmsRecipientHistory('+393331234567', '20260101000001');
+
+    expect($response->status())->toBe(200);
+    Http::assertSentCount(4); // login + history(401) + re-login + history(200)
+});
+
 it('logs multiple recipients in sandbox mode', function () {
     config()->set('aruba-sms.sandbox', true);
 
